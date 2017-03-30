@@ -1,0 +1,55 @@
+clear
+capture log close
+set more off
+
+* make the EA and VT matching geo file
+*===================================================================
+/*
+import excel "D:\Docs\Myanmar\DryZone\DATA\extras\ea_vt_comm.xlsx" , firstrow
+rename villagetract vt_4check
+save "D:\Docs\Myanmar\DryZone\DATA\extras\ea_vt_codes.dta", replace 
+*/
+
+* merge version 13 and 14:
+*===================================================================
+* paths 
+global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_data_170327"
+global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_data_170327"
+global mergedir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current"
+global temp "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current\temp"
+* main file: 
+use "$v13dir\RADZ survey - Dry Zone Community Questionnaire", clear
+
+* convert village tract code from string to integer: 
+clonevar vtcode = a103
+clonevar a103_v13 = a103  
+list Id-a104 vt 
+replace vt = "." if Id == "f9b8b2f8be8747798aea40a2b24c1b5c"
+replace vt = "." if  Id== "4c43bb5e80214b428d7053a7aebd8863"
+list Id-a104 vt
+desc vt 
+destring vt, replace
+
+* recode more stuff to stringi if needed... 
+
+save $temp\v13main, replace 
+
+* Merge with v14 
+use "$v14dir\RADZ survey - Dry Zone Community Questionnaire", clear
+clonevar vtcode = a103
+append using $temp\v13main, force
+list Id a101 a102 a103* vt* a104 a105__L*
+
+clonevar eacode = a102 
+clonevar tcode = a101 
+label define tcode 1 "Budalin" 2 "Magway" 3 "Pwintbyut" 4 "Myittha"
+label values tcode tcode
+list Id tcode eacode vtcode a103* a104 a105__L*
+
+isid Id
+isid eac
+
+save 
+
+
+
