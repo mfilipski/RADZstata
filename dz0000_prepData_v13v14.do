@@ -69,7 +69,7 @@ use "$v13dir\B_Respondents", clear
 list
 gen qversion = 13 
 tempfile B
-save `B', replace
+save `B'
 
 use "$v14dir\B_Respondents", clear
 list 
@@ -87,7 +87,7 @@ use "$v13dir\E_AgBus1", clear
 list
 gen qversion = 13 
 tempfile E1
-save `E1', replace
+save `E1'
 
 use "$v14dir\E_AgBus1", clear
 list 
@@ -126,7 +126,7 @@ use "$v13dir\E_AgBus2", clear
 list
 gen qversion = 13 
 tempfile E2
-save `E2', replace
+save `E2'
 use "$v14dir\E_AgBus2", clear
 list 
 gen qversion = 14 
@@ -146,7 +146,7 @@ use "$v13dir\G_Credit1", clear
 list
 gen qversion = 13 
 tempfile G1
-save `G1', replace
+save `G1'
 use "$v14dir\G_Credit1", clear
 list 
 gen qversion = 14 
@@ -177,7 +177,7 @@ use "$v13dir\G_Credit2", clear
 list
 gen qversion = 13 
 tempfile G2
-save `G2', replace
+save `G2'
 use "$v14dir\G_Credit2", clear
 list 
 gen qversion = 14 
@@ -194,7 +194,7 @@ use "$v13dir\H_Nonfarm", clear
 list
 gen qversion = 13 
 tempfile H
-save `H', replace
+save `H'
 list
 use "$v14dir\H_Nonfarm", clear
 list 
@@ -246,7 +246,7 @@ use "$v13dir\I_FarmAssoc", clear
 list
 gen qversion = 13 
 tempfile I
-save `I', replace
+save `I'
 list
 
 use "$v14dir\I_FarmAssoc", clear
@@ -259,20 +259,92 @@ save  $mergedir\I_FarmAssoc_merged, replace
 
 
 
-* 2.4 : Section J, Prices: 
+* 2.5 : Section J, Prices: 
 * @@@@@@@@@@@@@@@@@@@ 
-use "$v13dir\I_FarmAssoc", clear
+use "$v13dir\J_PricesUnits", clear
 list
 gen qversion = 13 
-tempfile I
-save `I', replace
+tempfile J
+save `J'
 list
-
-use "$v14dir\I_FarmAssoc", clear
+ 
+use "$v14dir\J_PricesUnits", clear
 list 
 gen qversion = 14 
 label var qversion "version of questionnaire 13 or 14"
-append using `I'
+append using `J', force
 list 
-save  $mergedir\I_FarmAssoc_merged, replace
+save  $mergedir\J_PricesUnits_merged, replace
+
+* 2.6 : Section K1 Climate: 
+* @@@@@@@@@@@@@@@@@@@ 
+use "$v13dir\K1_Climate", clear
+list
+gen qversion = 13 
+tempfile K1
+save `K1'
+list
+
+use "$v14dir\K1_Climate", clear
+list 
+gen qversion = 14 
+label var qversion "version of questionnaire 13 or 14"
+append using `K1', force
+list 
+save  $mergedir\K1_Climate_merged, replace
+
+
+* 2.7 : Section K2 Climate Crops: 
+* @@@@@@@@@@@@@@@@@@@ 
+use "$v13dir\K2_ClimateCrops", clear
+list
+gen qversion = 13 
+tempfile K2
+save `K2'
+list
+ 
+use "$v14dir\K2_ClimateCrops", clear
+list 
+gen qversion = 14 
+label var qversion "version of questionnaire 13 or 14"
+append using `K2', force
+rename Id crop
+#delimit ;
+label define crop 
+1 "Sesame"
+2 "Monsoon Rice"
+3 "Summer Rice"
+4 "Groundnut"
+5 "Green-gram"
+6 "Black-gram"
+7 "Pigeon Peas" ;
+#delimit cr
+label values crop crop
+label var crop "crop name"
+list 
+save  $mergedir\K2_ClimateCrops_merged, replace
+
+
+* 2.8: Interview actions : 
+* @@@@@@@@@@@@@@@@@@@ 
+use "$v13dir\interview_actions", clear
+gen qversion = 13 
+tempfile ia
+save `ia'
+use "$v14dir\interview_actions", clear
+gen qversion = 14 
+append using `ia' 
+list, sepby(Inter)
+
+* 2.8: Interview comments: 
+* @@@@@@@@@@@@@@@@@@@ 
+use "$v13dir\interview_comments", clear
+gen qversion = 13 
+tempfile ic
+save `ic'
+use "$v14dir\interview_comments", clear
+gen qversion = 14 
+append using `ic' 
+list, sepby(Inter)
+
 
