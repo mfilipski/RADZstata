@@ -26,6 +26,7 @@ isid ea
 duplicates tag ea , gen (dupea)
 sort ea
 list Id tcode eacode vtcode dupea a103*  vname enum date a105__L* 
+list Id tcode eacode vtcode dupea a103*  vname enum date a105__L* if qv==13
 
 crash 
 
