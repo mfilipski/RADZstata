@@ -18,8 +18,8 @@ save "D:\Docs\Myanmar\DryZone\DATA\extras\ea_vt_codes.dta", replace
 *===================================================================
 * paths 
 global workdir "D:\Docs\Myanmar\DryZone\Analysis\Stata\do"
-global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_170330"
-global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_170330"
+global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_170403"
+global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_170403"
 global mergedir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current"
 global temp "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current\temp"
 global outdatafile "$mergedir\RADZ_MAIN_merged"
@@ -34,8 +34,9 @@ use "$v13dir\RADZ survey - Dry Zone Community Questionnaire", clear
 clonevar vtcode = a103
 clonevar a103_v13 = a103  
 list Id-a104 vt 
-replace vt = "." if Id == "f9b8b2f8be8747798aea40a2b24c1b5c"
-replace vt = "." if  Id== "4c43bb5e80214b428d7053a7aebd8863"
+ 
+* replace vt = "." if Id == "f9b8b2f8be8747798aea40a2b24c1b5c" // seems was corrected
+replace vt = "726" if  Id== "4c43bb5e80214b428d7053a7aebd8863" // was corrected but with quotes for some reason.
 list Id-a104 vt
 desc vt 
 destring vt, replace
@@ -59,6 +60,8 @@ label define tcode 1 "Budalin" 2 "Magway" 3 "Pwintbyut" 4 "Myittha"
 label values tcode tcode
 list Id tcode eacode vtcode a103* a104 a105__L*
 
+rename Id interview 
+label var interview "interview ID"
 save $outdatafile, replace
 
 
@@ -77,6 +80,8 @@ label var b101 "b101. Respondent name"
 gen qversion = 14 
 label var qversion "version of questionnaire 13 or 14"
 append using `B'
+rename ParentId interview 
+label var interview "interview ID"
 save $mergedir\B_Respondents_merged, replace
 
 
@@ -116,6 +121,8 @@ label define bustype
 label values bustype bustype
 label var bustype "type of business"
 list 
+rename ParentId interview 
+label var interview "interview ID"
 save $mergedir\E_AgBus1_merged, replace
 
 
@@ -137,8 +144,9 @@ label define bustype 15 "Rice Mill (Medium/Large)" 16 "Oil Mill (Medium/Large)" 
 label values bustype bustype
 label var bustype "type of business"
 list 
+rename ParentId interview 
+label var interview "interview ID"
 save $mergedir\E_AgBus2_merged, replace
-
 
 * 2.3 : Section G1, Credit 1: 
 * @@@@@@@@@@@@@@@@@@@ 
@@ -169,6 +177,8 @@ label define fintype
 label values fintype fintype
 label var fintype "type of financial institution"
 list 
+rename ParentId interview 
+label var interview "interview ID"
 save $mergedir\G_Credit1_merged, replace
 
 * 2.3 : Section G2, Credit 2: 
@@ -184,6 +194,8 @@ gen qversion = 14
 label var qversion "version of questionnaire 13 or 14"
 append using `E2'
 label var g101s "specify the other type of financial institution"
+rename ParentId interview 
+label var interview "interview ID"
 save $mergedir\G_Credit2_merged, replace
 
 
@@ -237,6 +249,8 @@ label define bustype
 label values bustype bustype
 label var bustype "type of non-farm business"
 list 
+rename ParentId interview 
+label var interview "interview ID"
 save $mergedir\H_Nonfarm_merged, replace
 
 
@@ -255,6 +269,8 @@ gen qversion = 14
 label var qversion "version of questionnaire 13 or 14"
 append using `I'
 list 
+rename ParentId interview 
+label var interview "interview ID"
 save  $mergedir\I_FarmAssoc_merged, replace
 
 
@@ -274,6 +290,8 @@ gen qversion = 14
 label var qversion "version of questionnaire 13 or 14"
 append using `J', force
 list 
+rename ParentId interview 
+label var interview "interview ID"
 save  $mergedir\J_PricesUnits_merged, replace
 
 * 2.6 : Section K1 Climate: 
@@ -291,6 +309,8 @@ gen qversion = 14
 label var qversion "version of questionnaire 13 or 14"
 append using `K1', force
 list 
+rename ParentId interview 
+label var interview "interview ID"
 save  $mergedir\K1_Climate_merged, replace
 
 
@@ -322,6 +342,8 @@ label define crop
 label values crop crop
 label var crop "crop name"
 list 
+rename ParentId interview 
+label var interview "interview ID"
 save  $mergedir\K2_ClimateCrops_merged, replace
 
 
@@ -335,6 +357,14 @@ use "$v14dir\interview_actions", clear
 gen qversion = 14 
 append using `ia' 
 list, sepby(Inter)
+rename InterviewId interview 
+label var interview "interview ID"
+rename Action action
+rename Originator originator
+rename Role role
+rename Date date
+rename Time time 
+save  $mergedir\InterviewActions_merged, replace
 
 * 2.8: Interview comments: 
 * @@@@@@@@@@@@@@@@@@@ 
@@ -345,6 +375,47 @@ save `ic'
 use "$v14dir\interview_comments", clear
 gen qversion = 14 
 append using `ic' 
-list, sepby(Inter)
+*list, sepby(Inter)
 
+rename InterviewId interview 
+label var interview "interview ID"
+rename Id1 rosterid
+label var rosterid "Id code within the roster"
+save  $mergedir\InterviewComments_merged, replace
+
+
+
+* 3. Make useful files: 
+*===================================================================
+*===================================================================
+
+* File with current status of an interview: 
+use $mergedir\InterviewActions_merged, clear
+
+* make a counter to find the last status
+sort interview date time 
+by interview, sort: gen counter = _n 
+egen maxct = max(counter), by(interview)
+gen last = (counter==maxct)
+list in 1/100, sepby(inter)
+
+* now keep only the last status 
+gen curstat = action if last==1 
+list in 1/100, sepby(inter)
+
+* make a file to merge with main: 
+keep if last==1 
+drop counter qversion maxct last action 
+order interview curstat originator role date time 
+label var curstat "current status of interview on server"
+rename originator statorig 
+rename role statrole 
+rename date statdate
+rename time stattime 
+label var statorig "originator for current status"
+label var statrole "role of originator for current status"
+label var statdate "date of current status input"
+label var stattime "time of current status input"
+list in 1/10, sepby(inter)
+save $mergedir\CurrentStatus, replace 
 
