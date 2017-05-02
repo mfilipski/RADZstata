@@ -18,8 +18,8 @@ save "D:\Docs\Myanmar\DryZone\DATA\extras\ea_vt_codes.dta", replace
 *===================================================================
 * paths 
 global workdir "D:\Docs\Myanmar\DryZone\Analysis\Stata\do"
-global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_170403"
-global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_170403"
+global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_170418"
+global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_170418"
 global mergedir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current"
 global temp "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current\temp"
 global outdatafile "$mergedir\RADZ_MAIN_merged"
@@ -33,11 +33,27 @@ use "$v13dir\RADZ survey - Dry Zone Community Questionnaire", clear
 * convert village tract code from string to integer: 
 clonevar vtcode = a103
 clonevar a103_v13 = a103  
-list Id-a104 vt 
+list Id-a104 a110 vt 
+ 
+* Need to destring a110 
+replace a110 = "." if a110== "##N/A##" 
+destring a110, replace
  
 * replace vt = "." if Id == "f9b8b2f8be8747798aea40a2b24c1b5c" // seems was corrected
 replace vt = "726" if  Id== "4c43bb5e80214b428d7053a7aebd8863" // was corrected but with quotes for some reason.
-list Id-a104 vt
+
+* Replace these few where enumerator seemingly couldn't make the change: 
+replace  a102 = 016 if Id=="3dea03dcd9d04dfba87252caadce975f" 
+replace  a102 =002  if Id=="1d30008009914092b1406503e8ae5b9d"
+
+* Replace these few where enumerator seemingly couldn't make the change: 
+replace  a110 = 010 if Id=="3dea03dcd9d04dfba87252caadce975f" & a110==.
+replace a110 =  060 if Id=="ed4381c4666749c8a2ba5656a51035fa" & a110==.
+replace a110 =  060 if Id=="1766350009364c28bff977737e06eb3b"  & a110==.
+ 
+
+list Id-a104 a110 vt
+
 desc vt 
 destring vt, replace
 gen qversion = 13 
@@ -45,15 +61,18 @@ gen qversion = 13
 * recode more stuff to stringi if needed... 
 
 save $temp\v13main, replace 
-
+ 
 * Merge with v14 
 use "$v14dir\RADZ survey - Dry Zone Community Questionnaire", clear
 clonevar vtcode = a103
 gen qversion = 14 
 label var qversion "version of questionnaire 13 or 14"
 append using $temp\v13main, force
-list Id a101 a102 a103* vt* a104 a105__L*
+list Id a101 a102 a103* vt* a104 a105__L*  a110 
 
+* Corrections if necessary: 
+* this one has a good chance of getting corrected on the tablet: replace  a102 = 015 if Id=="3bb27a10fa9444c3b8162a9192a16b13"
+ 
 clonevar eacode = a102 
 clonevar tcode = a101 
 label define tcode 1 "Budalin" 2 "Magway" 3 "Pwintbyut" 4 "Myittha"
@@ -64,7 +83,7 @@ rename Id interview
 label var interview "interview ID"
 save $outdatafile, replace
 
-
+ 
 
 * 2.2 : Section B, respondents: 
 * @@@@@@@@@@@@@@@@@@@ 
@@ -383,8 +402,6 @@ rename Id1 rosterid
 label var rosterid "Id code within the roster"
 save  $mergedir\InterviewComments_merged, replace
 
-
-
 * 3. Make useful files: 
 *===================================================================
 *===================================================================
@@ -418,4 +435,6 @@ label var statdate "date of current status input"
 label var stattime "time of current status input"
 list in 1/10, sepby(inter)
 save $mergedir\CurrentStatus, replace 
+
+
 
