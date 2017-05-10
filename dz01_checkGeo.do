@@ -53,7 +53,8 @@ duplicates tag ea , gen (dupea)
 sort ea
 list inter tcode eacode vtcode dupea curstat a103*  vname enum date a105__L* 
 list inter tcode eacode vtcode dupea curstat a103*  vname enum date a105__L* if qv==13
-list inter tcode eacode vtcode a103*  curstat vname enum date a105__L*  if dupea>0
+list inter tcode eacode vtcode dupea a103*  curstat vname enum date a105__L*  if dupea>0
+crash
  
 list inter tcode eacode vtcode a103*  curstat vname enum date a105__L*  if vname=="kyauk oo"
 list inter tcode eacode vtcode a103*  curstat vname enum date a105__L*  if vname=="YeHtwat"

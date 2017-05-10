@@ -18,8 +18,8 @@ save "D:\Docs\Myanmar\DryZone\DATA\extras\ea_vt_codes.dta", replace
 *===================================================================
 * paths 
 global workdir "D:\Docs\Myanmar\DryZone\Analysis\Stata\do"
-global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_170418"
-global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_170418"
+global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_170505"
+global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_170505"
 global mergedir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current"
 global temp "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current\temp"
 global outdatafile "$mergedir\RADZ_MAIN_merged"
@@ -50,6 +50,10 @@ replace  a102 =002  if Id=="1d30008009914092b1406503e8ae5b9d"
 replace  a110 = 010 if Id=="3dea03dcd9d04dfba87252caadce975f" & a110==.
 replace a110 =  060 if Id=="ed4381c4666749c8a2ba5656a51035fa" & a110==.
 replace a110 =  060 if Id=="1766350009364c28bff977737e06eb3b"  & a110==.
+ 
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if Id==71d129e4afe54e2bb804c60b8848ec0f
  
 
 list Id-a104 a110 vt
