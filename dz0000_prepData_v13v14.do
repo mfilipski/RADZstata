@@ -18,8 +18,8 @@ save "D:\Docs\Myanmar\DryZone\DATA\extras\ea_vt_codes.dta", replace
 *===================================================================
 * paths 
 global workdir "D:\Docs\Myanmar\DryZone\Analysis\Stata\do"
-global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_170505"
-global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_170505"
+global v14dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v14_170510"
+global v13dir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\RADZ_v13_170510"
 global mergedir "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current"
 global temp "D:\Docs\Myanmar\DryZone\DATA\tempdata\TempSurveyData\Merged_current\temp"
 global outdatafile "$mergedir\RADZ_MAIN_merged"
@@ -41,20 +41,24 @@ destring a110, replace
  
 * replace vt = "." if Id == "f9b8b2f8be8747798aea40a2b24c1b5c" // seems was corrected
 replace vt = "726" if  Id== "4c43bb5e80214b428d7053a7aebd8863" // was corrected but with quotes for some reason.
-
-* Replace these few where enumerator seemingly couldn't make the change: 
+* Replace these few EA codes where enumerator seemingly couldn't make the change: 
 replace  a102 = 016 if Id=="3dea03dcd9d04dfba87252caadce975f" 
 replace  a102 =002  if Id=="1d30008009914092b1406503e8ae5b9d"
 
-* Replace these few where enumerator seemingly couldn't make the change: 
+* Replace these few Enum codes where enumerator seemingly couldn't make the change: 
 replace  a110 = 010 if Id=="3dea03dcd9d04dfba87252caadce975f" & a110==.
 replace a110 =  060 if Id=="ed4381c4666749c8a2ba5656a51035fa" & a110==.
 replace a110 =  060 if Id=="1766350009364c28bff977737e06eb3b"  & a110==.
  
 * Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
 * keep f9b8b2f8be8747798aea40a2b24c1b5c
-drop if Id==71d129e4afe54e2bb804c60b8848ec0f
- 
+drop if Id=="71d129e4afe54e2bb804c60b8848ec0f"
+
+* Son Kone was mis-identified as EA13 instead of EA20: 
+* Also need to replace vtcode 
+replace a102=020 if Id=="fa78a662b3e44a638e8ef4336a779908"
+replace vt="753" if Id=="fa78a662b3e44a638e8ef4336a779908"
+
 
 list Id-a104 a110 vt
 
@@ -74,8 +78,9 @@ label var qversion "version of questionnaire 13 or 14"
 append using $temp\v13main, force
 list Id a101 a102 a103* vt* a104 a105__L*  a110 
 
-* Corrections if necessary: 
-* this one has a good chance of getting corrected on the tablet: replace  a102 = 015 if Id=="3bb27a10fa9444c3b8162a9192a16b13"
+* Corrections: (they didn't correct it on the tablet) 
+replace a102=015 if Id=="3bb27a10fa9444c3b8162a9192a16b13"
+
  
 clonevar eacode = a102 
 clonevar tcode = a101 
@@ -86,13 +91,15 @@ list Id tcode eacode vtcode a103* a104 a105__L*
 rename Id interview 
 label var interview "interview ID"
 save $outdatafile, replace
-
  
 
 * 2.2 : Section B, respondents: 
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\B_Respondents", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile B
 save `B'
@@ -113,6 +120,9 @@ save $mergedir\B_Respondents_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\E_AgBus1", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile E1
 save `E1'
@@ -154,6 +164,9 @@ save $mergedir\E_AgBus1_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\E_AgBus2", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile E2
 save `E2'
@@ -175,6 +188,9 @@ save $mergedir\E_AgBus2_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\G_Credit1", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile G1
 save `G1'
@@ -208,6 +224,9 @@ save $mergedir\G_Credit1_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\G_Credit2", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile G2
 save `G2'
@@ -227,6 +246,9 @@ save $mergedir\G_Credit2_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\H_Nonfarm", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile H
 save `H'
@@ -281,6 +303,9 @@ save $mergedir\H_Nonfarm_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\I_FarmAssoc", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile I
 save `I'
@@ -302,6 +327,9 @@ save  $mergedir\I_FarmAssoc_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\J_PricesUnits", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile J
 save `J'
@@ -321,6 +349,9 @@ save  $mergedir\J_PricesUnits_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\K1_Climate", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile K1
 save `K1'
@@ -341,6 +372,9 @@ save  $mergedir\K1_Climate_merged, replace
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\K2_ClimateCrops", clear
 list
+* Interview in Pay Pin Thar was duplicated: the first is kept, the second should be discarded: 
+* keep f9b8b2f8be8747798aea40a2b24c1b5c
+drop if ParentId=="71d129e4afe54e2bb804c60b8848ec0f"
 gen qversion = 13 
 tempfile K2
 save `K2'
@@ -373,6 +407,7 @@ save  $mergedir\K2_ClimateCrops_merged, replace
 * 2.8: Interview actions : 
 * @@@@@@@@@@@@@@@@@@@ 
 use "$v13dir\interview_actions", clear
+
 gen qversion = 13 
 tempfile ia
 save `ia'

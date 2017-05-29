@@ -111,3 +111,7 @@ foreach v of varlist `wvars' {
 }
 
 
+* Inspect a bunch of variables: 
+inspect c102a c102b c102c c103 c104 c105 c106a c106b  c106c
+
+

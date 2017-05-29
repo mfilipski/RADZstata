@@ -11,11 +11,13 @@ merge m:1 ea  using $ea_vt_codes
 drop if _m==2 
 drop _m 
 
+isid ea 
+
 * add interview status
 merge 1:1 interview using $rawdir\CurrentStatus
 tab _m 
 drop _m
-
+ 
 * make useful variables: 
 clonevar enumerator = a110 
 clonevar vname = a104
@@ -54,7 +56,7 @@ sort ea
 list inter tcode eacode vtcode dupea curstat a103*  vname enum date a105__L* 
 list inter tcode eacode vtcode dupea curstat a103*  vname enum date a105__L* if qv==13
 list inter tcode eacode vtcode dupea a103*  curstat vname enum date a105__L*  if dupea>0
-crash
+
  
 list inter tcode eacode vtcode a103*  curstat vname enum date a105__L*  if vname=="kyauk oo"
 list inter tcode eacode vtcode a103*  curstat vname enum date a105__L*  if vname=="YeHtwat"
@@ -76,6 +78,5 @@ sort interview Variable Order
 gen comshort = substr(Comment, 1, 50)
 list  tcode eacode vtcode dupea badcode qv enum curstat Order Variable comshort if tocheck == 1 , sepby(interview Variable)
 list  interview tcode eacode vtcode dupea badcode qv enum curstat Order Variable comshort if tocheck == 1 & Variable=="a102", sepby(interview Variable)
-
 
 
